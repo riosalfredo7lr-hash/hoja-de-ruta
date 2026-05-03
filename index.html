@@ -246,16 +246,10 @@ f.style.display=(coincideDia && coincideTexto)?"":"none";
 
 // ===== EXPORTAR =====
 function exportar() {
-  let filas = [];
-  
-  // encabezados
-  filas.push([
-    "Codigo","Nombre","Razon","Telefono","Dia",
-    "CCC","DIG","PORTA","TP","IN1","IN2"
-  ]);
+  let csv = "Codigo,Nombre,Razon,Telefono,Dia,CCC,DIG,PORTA,TP,IN1,IN2\n";
 
   for (let fila of tablaBody.rows) {
-    let datos = [
+    let linea = [
       fila.cells[0].textContent,
       fila.cells[1].textContent,
       fila.cells[2].textContent,
@@ -263,30 +257,27 @@ function exportar() {
       fila.cells[4].textContent
     ];
 
-    // checkboxes
     for (let i = 5; i <= 10; i++) {
-      datos.push(fila.cells[i].querySelector("input").checked ? "SI" : "NO");
+      linea.push(fila.cells[i].querySelector("input").checked ? "SI" : "NO");
     }
 
-    filas.push(datos);
+    csv += linea.join(";") + "\n"; // usamos ; (mejor para Excel en español)
   }
 
-  // convertir a CSV
-  let csv = filas.map(f => f.join(",")).join("\n");
+  let blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
 
-  let blob = new Blob([csv], { type: "text/csv" });
   let url = URL.createObjectURL(blob);
-
   let a = document.createElement("a");
+
   a.href = url;
   a.download = "clientes.csv";
+
   document.body.appendChild(a);
   a.click();
 
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
 // ===== AGREGAR =====
 form.onsubmit=e=>{
 e.preventDefault();
