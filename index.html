@@ -14,7 +14,6 @@ textarea { width: 100%; height: 60px; }
 table { width: 100%; border-collapse: collapse; background: white; }
 th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
 th { background: #ddd; }
-button { cursor: pointer; }
 </style>
 </head>
 
@@ -24,7 +23,7 @@ button { cursor: pointer; }
 
 <form id="form">
 <input type="text" id="codigo" placeholder="Código" required>
-<input type="text" id="nombre" placeholder="Nombre de contacto" required>
+<input type="text" id="nombre" placeholder="Nombre" required>
 <input type="text" id="razon" placeholder="Razón Social" required>
 <input type="text" id="telefono" placeholder="Teléfono">
 
@@ -47,7 +46,7 @@ button { cursor: pointer; }
 </div>
 
 <div class="filtro">
-<strong>Filtrar por día:</strong>
+<strong>Filtrar:</strong>
 <select id="filtroDia">
 <option value="todos">Todos</option>
 <option>Lunes</option>
@@ -58,15 +57,26 @@ button { cursor: pointer; }
 <option>Sábado</option>
 </select>
 
-<input type="text" id="buscar" placeholder="Buscar por nombre...">
+<input type="text" id="buscar" placeholder="Buscar...">
 </div>
 
+<!-- OBJETIVOS -->
 <div class="filtro">
-<strong>Objetivos:</strong>
+<strong>Objetivos:</strong><br>
+CCC <input type="number" id="objCCC" value="0">
+DIG <input type="number" id="objDIG" value="0">
+PORTA <input type="number" id="objPORTA" value="0">
+TP <input type="number" id="objTP" value="0">
+<button onclick="guardarObjetivos()">Guardar</button>
+</div>
+
+<!-- GRAFICO -->
+<div class="filtro">
+<strong>Progreso:</strong>
 <canvas id="grafico" width="400" height="200"></canvas>
 </div>
 
-<button onclick="exportar()">📥 Exportar datos</button>
+<button onclick="exportar()">📥 Exportar Excel</button>
 
 <h2>Listado</h2>
 
@@ -85,7 +95,7 @@ button { cursor: pointer; }
 <th>IN1</th>
 <th>IN2</th>
 <th>Editar</th>
-<th>WhatsApp</th>
+<th>WA</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -99,9 +109,9 @@ const filtroDia = document.getElementById("filtroDia");
 const buscar = document.getElementById("buscar");
 const grafico = document.getElementById("grafico");
 
-// ===== GUARDAR =====
+// ===== GUARDAR CLIENTES =====
 function guardarDatos() {
-const datos = [];
+let datos = [];
 for (let fila of tablaBody.rows) {
 datos.push({
 codigo: fila.cells[0].textContent,
@@ -118,39 +128,58 @@ localStorage.setItem("clientes", JSON.stringify(datos));
 // ===== MENSAJE =====
 mensajeInput.oninput = ()=> localStorage.setItem("mensajeWA", mensajeInput.value);
 
-// ===== GRAFICO =====
-function actualizarGrafico() {
-let c = {CCC:0,DIG:0,PORTA:0,TP:0};
-
-for (let fila of tablaBody.rows) {
-if (fila.cells[5].querySelector("input").checked) c.CCC++;
-if (fila.cells[6].querySelector("input").checked) c.DIG++;
-if (fila.cells[7].querySelector("input").checked) c.PORTA++;
-if (fila.cells[8].querySelector("input").checked) c.TP++;
+// ===== OBJETIVOS =====
+function guardarObjetivos() {
+const objetivos = {
+CCC: objCCC.value,
+DIG: objDIG.value,
+PORTA: objPORTA.value,
+TP: objTP.value
+};
+localStorage.setItem("objetivos", JSON.stringify(objetivos));
+actualizarGrafico();
 }
 
+// ===== GRAFICO =====
+function actualizarGrafico() {
+let avance = {CCC:0,DIG:0,PORTA:0,TP:0};
+
+for (let fila of tablaBody.rows) {
+if (fila.cells[5].querySelector("input").checked) avance.CCC++;
+if (fila.cells[6].querySelector("input").checked) avance.DIG++;
+if (fila.cells[7].querySelector("input").checked) avance.PORTA++;
+if (fila.cells[8].querySelector("input").checked) avance.TP++;
+}
+
+const objetivos = JSON.parse(localStorage.getItem("objetivos")) || {};
+
 const ctx = grafico.getContext("2d");
-const width = grafico.width;
-const height = grafico.height;
+ctx.clearRect(0,0,400,200);
 
-ctx.clearRect(0,0,width,height);
+const keys = ["CCC","DIG","PORTA","TP"];
 
-const vals = Object.values(c);
-const keys = Object.keys(c);
-const max = Math.max(...vals,1);
+keys.forEach((k,i)=>{
+let x = i*90+20;
+let obj = parseInt(objetivos[k]||0);
+let val = avance[k];
+let max = Math.max(obj,val,1);
 
-vals.forEach((v,i)=>{
-let barWidth = width / vals.length;
-let h = (v/max)*(height-50);
-let x = i*barWidth + 20;
-let y = height - h - 20;
+let hObj = (obj/max)*150;
+let hVal = (val/max)*150;
 
+// objetivo
+ctx.fillStyle="#ccc";
+ctx.fillRect(x,180-hObj,30,hObj);
+
+// avance
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(x,y,40,h);
+ctx.fillRect(x+35,180-hVal,30,hVal);
 
+// textos
 ctx.fillStyle="black";
-ctx.fillText(keys[i],x, height-5);
-ctx.fillText(v,x+10,y-5);
+ctx.fillText(k,x,195);
+ctx.fillText(obj,x,180-hObj-5);
+ctx.fillText(val,x+35,180-hVal-5);
 });
 }
 
@@ -172,11 +201,9 @@ c.onchange=()=>{guardarDatos();actualizarGrafico();};
 fila.insertCell(-1).appendChild(c);
 });
 
-// EDITAR
-let celdaE=fila.insertCell(-1);
+// editar
 let btnE=document.createElement("button");
 btnE.textContent="Editar";
-
 btnE.onclick=()=>{
 if(btnE.textContent==="Editar"){
 for(let i=0;i<5;i++){
@@ -185,43 +212,38 @@ fila.cells[i].innerHTML=`<input value="${v}">`;
 }
 btnE.textContent="Guardar";
 }else{
-if(!confirm("¿Guardar cambios?")) return;
-
 for(let i=0;i<5;i++){
 fila.cells[i].textContent=fila.cells[i].querySelector("input").value;
 }
 btnE.textContent="Editar";
 guardarDatos();
-aplicarFiltro();
 }
 };
-celdaE.appendChild(btnE);
+fila.insertCell(-1).appendChild(btnE);
 
-// WHATSAPP
-let celdaW=fila.insertCell(-1);
+// whatsapp
 let btnW=document.createElement("button");
-btnW.textContent="WhatsApp";
-
+btnW.textContent="WA";
 btnW.onclick=()=>{
 let tel=fila.cells[3].textContent.replace(/\D/g,"");
-
-// formato Argentina
-if (!tel.startsWith("54")) tel = "54" + tel;
-
-let nombre=fila.cells[1].textContent;
-let msg=mensajeInput.value.replace("{nombre}",nombre);
-
+if(!tel.startsWith("54")) tel="54"+tel;
+let msg=mensajeInput.value.replace("{nombre}",fila.cells[1].textContent);
 window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
 };
-celdaW.appendChild(btnW);
+fila.insertCell(-1).appendChild(btnW);
 }
 
 // ===== CARGAR =====
 function cargarDatos(){
-(JSON.parse(localStorage.getItem("clientes"))||[])
-.forEach(crearFila);
+(JSON.parse(localStorage.getItem("clientes"))||[]).forEach(crearFila);
 
 mensajeInput.value=localStorage.getItem("mensajeWA")||"";
+
+let obj=JSON.parse(localStorage.getItem("objetivos"))||{};
+objCCC.value=obj.CCC||0;
+objDIG.value=obj.DIG||0;
+objPORTA.value=obj.PORTA||0;
+objTP.value=obj.TP||0;
 
 actualizarGrafico();
 }
@@ -231,53 +253,41 @@ filtroDia.onchange=aplicarFiltro;
 buscar.oninput=aplicarFiltro;
 
 function aplicarFiltro(){
-let texto = buscar.value.toLowerCase();
-
+let t=buscar.value.toLowerCase();
 for(let f of tablaBody.rows){
 let d=f.cells[4].textContent;
-let nombre=f.cells[1].textContent.toLowerCase();
-
-let coincideDia = (filtroDia.value==="todos"||d===filtroDia.value);
-let coincideTexto = nombre.includes(texto);
-
-f.style.display=(coincideDia && coincideTexto)?"":"none";
+let n=f.cells[1].textContent.toLowerCase();
+f.style.display=( (filtroDia.value==="todos"||d===filtroDia.value) && n.includes(t) )?"":"none";
 }
 }
 
 // ===== EXPORTAR =====
 function exportar() {
-  let csv = "Codigo,Nombre,Razon,Telefono,Dia,CCC,DIG,PORTA,TP,IN1,IN2\n";
+let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
-  for (let fila of tablaBody.rows) {
-    let linea = [
-      fila.cells[0].textContent,
-      fila.cells[1].textContent,
-      fila.cells[2].textContent,
-      fila.cells[3].textContent,
-      fila.cells[4].textContent
-    ];
+for(let fila of tablaBody.rows){
+let linea=[
+fila.cells[0].textContent,
+fila.cells[1].textContent,
+fila.cells[2].textContent,
+fila.cells[3].textContent,
+fila.cells[4].textContent
+];
 
-    for (let i = 5; i <= 10; i++) {
-      linea.push(fila.cells[i].querySelector("input").checked ? "SI" : "NO");
-    }
-
-    csv += linea.join(",") + "\n";
-  }
-
-  let blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
-
-  let url = URL.createObjectURL(blob);
-  let a = document.createElement("a");
-
-  a.href = url;
-  a.download = "clientes.csv";
-
-  document.body.appendChild(a);
-  a.click();
-
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+for(let i=5;i<=10;i++){
+linea.push(fila.cells[i].querySelector("input").checked?"SI":"NO");
 }
+
+csv+=linea.join(";")+"\n";
+}
+
+let blob=new Blob(["\ufeff"+csv],{type:"text/csv"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="clientes.csv";
+a.click();
+}
+
 // ===== AGREGAR =====
 form.onsubmit=e=>{
 e.preventDefault();
@@ -298,9 +308,10 @@ form.reset();
 
 // INIT
 cargarDatos();
-  if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registrado"));
+
+// SW
+if ("serviceWorker" in navigator) {
+navigator.serviceWorker.register("sw.js");
 }
 </script>
 
