@@ -246,7 +246,7 @@ f.style.display=(coincideDia && coincideTexto)?"":"none";
 
 // ===== EXPORTAR =====
 function exportar() {
-  let csv = "Codigo,Nombre,Razon,Telefono,Dia,CCC,DIG,PORTA,TP,IN1,IN2\n";
+  let csv = "Codigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
   for (let fila of tablaBody.rows) {
     let linea = [
@@ -261,7 +261,7 @@ function exportar() {
       linea.push(fila.cells[i].querySelector("input").checked ? "SI" : "NO");
     }
 
-    csv += linea.join(";") + "\n"; // usamos ; (mejor para Excel en español)
+    csv += linea.join(";") + "\n";
   }
 
   let blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
