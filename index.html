@@ -246,12 +246,45 @@ f.style.display=(coincideDia && coincideTexto)?"":"none";
 
 // ===== EXPORTAR =====
 function exportar() {
-const data = localStorage.getItem("clientes");
-const blob = new Blob([data], {type: "application/json"});
-const a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "clientes.json";
-a.click();
+  let filas = [];
+  
+  // encabezados
+  filas.push([
+    "Codigo","Nombre","Razon","Telefono","Dia",
+    "CCC","DIG","PORTA","TP","IN1","IN2"
+  ]);
+
+  for (let fila of tablaBody.rows) {
+    let datos = [
+      fila.cells[0].textContent,
+      fila.cells[1].textContent,
+      fila.cells[2].textContent,
+      fila.cells[3].textContent,
+      fila.cells[4].textContent
+    ];
+
+    // checkboxes
+    for (let i = 5; i <= 10; i++) {
+      datos.push(fila.cells[i].querySelector("input").checked ? "SI" : "NO");
+    }
+
+    filas.push(datos);
+  }
+
+  // convertir a CSV
+  let csv = filas.map(f => f.join(",")).join("\n");
+
+  let blob = new Blob([csv], { type: "text/csv" });
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "clientes.csv";
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ===== AGREGAR =====
