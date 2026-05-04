@@ -2,92 +2,93 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hoja de Ruta</title>
 
 <style>
-body { font-family: Arial; margin:0; background:#f4f4f4; }
+body { margin:0; font-family:Arial; background:#f4f4f4; }
 
 /* TABS */
-.tabs {
-  display:flex;
-  background:#4CAF50;
-}
+.tabs { display:flex; background:#4CAF50; }
 .tabs button {
-  flex:1;
-  padding:10px;
-  border:none;
-  background:#4CAF50;
-  color:white;
-  font-weight:bold;
+flex:1;
+padding:12px;
+border:none;
+background:#4CAF50;
+color:white;
+font-size:14px;
 }
-.tabs button.active {
-  background:#388E3C;
-}
+.tabs button.active { background:#388E3C; }
 
-.tab {
-  display:none;
-  padding:15px;
-}
+/* SECCIONES */
+.tab { display:none; padding:10px; }
+.tab.active { display:block; }
 
-.tab.active {
-  display:block;
-}
-
-/* UI */
+/* CAJAS */
 .box {
-  background:white;
-  padding:15px;
-  border-radius:8px;
-  margin-bottom:15px;
+background:white;
+padding:12px;
+border-radius:10px;
+margin-bottom:12px;
 }
-input, select, button, textarea {
-  padding:6px;
-  margin:5px;
+
+/* INPUTS */
+input, select, textarea {
+width:100%;
+padding:10px;
+margin:6px 0;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
 }
-table {
-  width:100%;
-  border-collapse:collapse;
+
+/* BOTONES */
+button {
+width:100%;
+padding:12px;
+margin-top:8px;
+font-size:16px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
 }
-th, td {
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:center;
-}
-th { background:#ddd; }
+
+/* TABLA */
+.table-container { overflow-x:auto; }
+table { width:100%; font-size:12px; }
+th, td { padding:4px; border:1px solid #ccc; }
+
+/* CANVAS */
+canvas { width:100%!important; height:200px!important; }
 </style>
 </head>
 
 <body>
 
-<!-- TABS -->
 <div class="tabs">
-<button onclick="cambiarTab(0)" class="active">Clientes</button>
-<button onclick="cambiarTab(1)">Progreso</button>
-<button onclick="cambiarTab(2)">Listado</button>
-<button onclick="cambiarTab(3)">Mensaje</button>
+<button class="active" onclick="tab(0)">Clientes</button>
+<button onclick="tab(1)">Progreso</button>
+<button onclick="tab(2)">Listado</button>
+<button onclick="tab(3)">Mensaje</button>
 </div>
 
 <!-- CLIENTES -->
 <div class="tab active">
 <div class="box">
-<h3>Cargar Cliente</h3>
 <form id="form">
-<input type="text" id="codigo" placeholder="Código" required>
-<input type="text" id="nombre" placeholder="Nombre" required>
-<input type="text" id="razon" placeholder="Razón" required>
-<input type="text" id="telefono" placeholder="Teléfono">
+<input id="codigo" placeholder="Código" required>
+<input id="nombre" placeholder="Nombre" required>
+<input id="razon" placeholder="Razón Social" required>
+<input id="telefono" placeholder="Teléfono">
 
 <select id="dia" required>
 <option value="">Día</option>
-<option>Lunes</option>
-<option>Martes</option>
-<option>Miércoles</option>
-<option>Jueves</option>
-<option>Viernes</option>
-<option>Sábado</option>
+<option>Lunes</option><option>Martes</option><option>Miércoles</option>
+<option>Jueves</option><option>Viernes</option><option>Sábado</option>
 </select>
 
-<button type="submit">Agregar</button>
+<button>Agregar</button>
 </form>
 </div>
 </div>
@@ -95,17 +96,15 @@ th { background:#ddd; }
 <!-- PROGRESO -->
 <div class="tab">
 <div class="box">
-<h3>Objetivos</h3>
 CCC <input type="number" id="objCCC">
 DIG <input type="number" id="objDIG">
 PORTA <input type="number" id="objPORTA">
 TP <input type="number" id="objTP">
-<button onclick="guardarObjetivos()">Guardar</button>
+<button onclick="guardarObjetivos()">Guardar objetivos</button>
 </div>
 
 <div class="box">
-<h3>Progreso</h3>
-<canvas id="grafico" width="400" height="200"></canvas>
+<canvas id="grafico"></canvas>
 </div>
 </div>
 
@@ -114,25 +113,21 @@ TP <input type="number" id="objTP">
 <div class="box">
 <select id="filtroDia">
 <option value="todos">Todos</option>
-<option>Lunes</option>
-<option>Martes</option>
-<option>Miércoles</option>
-<option>Jueves</option>
-<option>Viernes</option>
-<option>Sábado</option>
+<option>Lunes</option><option>Martes</option><option>Miércoles</option>
+<option>Jueves</option><option>Viernes</option><option>Sábado</option>
 </select>
 
-<input type="text" id="buscar" placeholder="Buscar">
+<input id="buscar" placeholder="Buscar">
 <button onclick="exportar()">Exportar Excel</button>
 </div>
 
-<div class="box">
+<div class="box table-container">
 <table id="tabla">
 <thead>
 <tr>
-<th>Código</th><th>Nombre</th><th>Razón</th><th>Teléfono</th><th>Día</th>
+<th>Cod</th><th>Nom</th><th>Razón</th><th>Tel</th><th>Día</th>
 <th>CCC</th><th>DIG</th><th>PORTA</th><th>TP</th><th>IN1</th><th>IN2</th>
-<th>Editar</th><th>WA</th>
+<th>WA</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -143,119 +138,128 @@ TP <input type="number" id="objTP">
 <!-- MENSAJE -->
 <div class="tab">
 <div class="box">
-<h3>Mensaje WhatsApp</h3>
 <textarea id="mensaje" placeholder="Hola {nombre}..."></textarea>
 </div>
 </div>
 
 <script>
-// ===== TABS =====
-function cambiarTab(i){
+const tabla=document.querySelector("#tabla tbody");
+
+// TABS
+function tab(i){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-
 document.querySelectorAll(".tab")[i].classList.add("active");
 document.querySelectorAll(".tabs button")[i].classList.add("active");
 }
 
-// ===== VARIABLES =====
-const tablaBody=document.querySelector("#tabla tbody");
-const grafico=document.getElementById("grafico");
-
-// ===== GUARDAR =====
-function guardarDatos(){
-let datos=[];
-for(let f of tablaBody.rows){
-datos.push({
-codigo:f.cells[0].textContent,
-nombre:f.cells[1].textContent,
-razon:f.cells[2].textContent,
-telefono:f.cells[3].textContent,
-dia:f.cells[4].textContent,
-checks:[...Array(6)].map((_,i)=>f.cells[i+5].querySelector("input").checked)
+// GUARDAR
+function guardar(){
+let d=[];
+for(let f of tabla.rows){
+d.push({
+c:f.cells[0].textContent,
+n:f.cells[1].textContent,
+r:f.cells[2].textContent,
+t:f.cells[3].textContent,
+d:f.cells[4].textContent,
+ch:[...Array(6)].map((_,i)=>f.cells[i+5].querySelector("input").checked)
 });
 }
-localStorage.setItem("clientes",JSON.stringify(datos));
+localStorage.setItem("data",JSON.stringify(d));
 }
 
-// ===== OBJETIVOS =====
+// CREAR FILA
+function fila(o){
+let f=tabla.insertRow();
+f.insertCell(0).textContent=o.c;
+f.insertCell(1).textContent=o.n;
+f.insertCell(2).textContent=o.r;
+f.insertCell(3).textContent=o.t;
+f.insertCell(4).textContent=o.d;
+
+o.ch.forEach(c=>{
+let i=document.createElement("input");
+i.type="checkbox"; i.checked=c;
+i.onchange=()=>{guardar();graf();}
+f.insertCell(-1).appendChild(i);
+});
+
+// WA
+let b=document.createElement("button");
+b.textContent="WA";
+b.onclick=()=>{
+let tel=f.cells[3].textContent.replace(/\D/g,"");
+if(!tel.startsWith("54"))tel="54"+tel;
+let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
+window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
+};
+f.insertCell(-1).appendChild(b);
+}
+
+// FORM
+form.onsubmit=e=>{
+e.preventDefault();
+fila({
+c:codigo.value,
+n:nombre.value,
+r:razon.value,
+t:telefono.value,
+d:dia.value,
+ch:[false,false,false,false,false,false]
+});
+guardar();
+graf();
+form.reset();
+};
+
+// OBJETIVOS
 function guardarObjetivos(){
-localStorage.setItem("objetivos",JSON.stringify({
+localStorage.setItem("obj",JSON.stringify({
 CCC:objCCC.value,
 DIG:objDIG.value,
 PORTA:objPORTA.value,
 TP:objTP.value
 }));
-actualizarGrafico();
+graf();
 }
 
-// ===== GRAFICO =====
-function actualizarGrafico(){
-let avance={CCC:0,DIG:0,PORTA:0,TP:0};
-
-for(let f of tablaBody.rows){
-if(f.cells[5].querySelector("input").checked)avance.CCC++;
-if(f.cells[6].querySelector("input").checked)avance.DIG++;
-if(f.cells[7].querySelector("input").checked)avance.PORTA++;
-if(f.cells[8].querySelector("input").checked)avance.TP++;
+// GRAFICO
+function graf(){
+let a={CCC:0,DIG:0,PORTA:0,TP:0};
+for(let f of tabla.rows){
+if(f.cells[5].querySelector("input").checked)a.CCC++;
+if(f.cells[6].querySelector("input").checked)a.DIG++;
+if(f.cells[7].querySelector("input").checked)a.PORTA++;
+if(f.cells[8].querySelector("input").checked)a.TP++;
 }
 
-let obj=JSON.parse(localStorage.getItem("objetivos"))||{};
-
+let o=JSON.parse(localStorage.getItem("obj"))||{};
 let ctx=grafico.getContext("2d");
 ctx.clearRect(0,0,400,200);
 
 ["CCC","DIG","PORTA","TP"].forEach((k,i)=>{
 let x=i*90+20;
-let o=obj[k]||0;
-let v=avance[k];
-let max=Math.max(o,v,1);
+let obj=o[k]||0;
+let val=a[k];
+let m=Math.max(obj,val,1);
 
 ctx.fillStyle="#ccc";
-ctx.fillRect(x,180-(o/max)*150,30,(o/max)*150);
+ctx.fillRect(x,180-(obj/m)*150,30,(obj/m)*150);
 
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(x+35,180-(v/max)*150,30,(v/max)*150);
+ctx.fillRect(x+35,180-(val/m)*150,30,(val/m)*150);
 
 ctx.fillStyle="black";
 ctx.fillText(k,x,195);
 });
 }
 
-// ===== CREAR FILA =====
-function crearFila(cli){
-let f=tablaBody.insertRow();
-
-f.insertCell(0).textContent=cli.codigo;
-f.insertCell(1).textContent=cli.nombre;
-f.insertCell(2).textContent=cli.razon;
-f.insertCell(3).textContent=cli.telefono;
-f.insertCell(4).textContent=cli.dia;
-
-cli.checks.forEach(c=>{
-let i=document.createElement("input");
-i.type="checkbox";
-i.checked=c;
-i.onchange=()=>{guardarDatos();actualizarGrafico();}
-f.insertCell(-1).appendChild(i);
-});
-
-let btn=document.createElement("button");
-btn.textContent="WA";
-btn.onclick=()=>{
-let tel=f.cells[3].textContent.replace(/\D/g,"");
-if(!tel.startsWith("54"))tel="54"+tel;
-let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
-window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
-};
-f.insertCell(-1).appendChild(btn);
-}
-
-// ===== EXPORTAR =====
+// EXPORTAR
 function exportar(){
 let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
-for(let f of tablaBody.rows){
+for(let f of tabla.rows){
 let l=[
 f.cells[0].textContent,
 f.cells[1].textContent,
@@ -263,11 +267,9 @@ f.cells[2].textContent,
 f.cells[3].textContent,
 f.cells[4].textContent
 ];
-
 for(let i=5;i<=10;i++){
 l.push(f.cells[i].querySelector("input").checked?"SI":"NO");
 }
-
 csv+=l.join(";")+"\n";
 }
 
@@ -277,25 +279,9 @@ a.download="clientes.csv";
 a.click();
 }
 
-// ===== AGREGAR =====
-form.onsubmit=e=>{
-e.preventDefault();
-crearFila({
-codigo:codigo.value,
-nombre:nombre.value,
-razon:razon.value,
-telefono:telefono.value,
-dia:dia.value,
-checks:[false,false,false,false,false,false]
-});
-guardarDatos();
-actualizarGrafico();
-form.reset();
-};
-
 // INIT
-(JSON.parse(localStorage.getItem("clientes"))||[]).forEach(crearFila);
-actualizarGrafico();
+(JSON.parse(localStorage.getItem("data"))||[]).forEach(fila);
+graf();
 </script>
 
 </body>
