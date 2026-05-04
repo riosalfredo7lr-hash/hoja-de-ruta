@@ -141,7 +141,8 @@ TP <input type="number" id="objTP">
 <textarea id="mensaje" placeholder="Hola {nombre}..."></textarea>
 </div>
 </div>
-
+buscar.oninput = filtrar;
+filtroDia.onchange = filtrar;
 <script>
 const tabla=document.querySelector("#tabla tbody");
 
@@ -297,6 +298,28 @@ ctx.fillText(obj, xObj, height-hObj-35);
 ctx.fillText(val, xVal, height-hVal-35);
 
 });
+}
+
+// BUSCADOR
+function filtrar(){
+let texto = buscar.value.toLowerCase();
+let dia = filtroDia.value;
+
+for(let f of tabla.rows){
+let textoFila = (
+f.cells[0].textContent + " " + 
+f.cells[1].textContent + " " + 
+f.cells[2].textContent
+).toLowerCase();
+
+let coincideTexto = textoFila.includes(texto);
+let d = f.cells[4].textContent;
+
+let coincideTexto = nombre.includes(texto);
+let coincideDia = (dia === "todos" || d === dia);
+
+f.style.display = (coincideTexto && coincideDia) ? "" : "none";
+}
 }
 // EXPORTAR
 function exportar(){
