@@ -248,7 +248,12 @@ ctx.fillStyle="#ccc";
 ctx.fillRect(x,180-(obj/m)*150,30,(obj/m)*150);
 
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(x+35,180-(val/m)*150,30,(val/m)*150);
+let hVal = (val/m)*150;
+
+// altura mínima visible
+if (val > 0 && hVal < 5) hVal = 5;
+
+ctx.fillRect(x+35,180-hVal,30,hVal);
 
 ctx.fillStyle="black";
 ctx.fillText(k,x,195);
