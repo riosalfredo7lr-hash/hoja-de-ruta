@@ -227,6 +227,7 @@ graf();
 // GRAFICO
 function graf(){
 let a={CCC:0,DIG:0,PORTA:0,TP:0};
+
 for(let f of tabla.rows){
 if(f.cells[5].querySelector("input").checked)a.CCC++;
 if(f.cells[6].querySelector("input").checked)a.DIG++;
@@ -235,31 +236,68 @@ if(f.cells[8].querySelector("input").checked)a.TP++;
 }
 
 let o=JSON.parse(localStorage.getItem("obj"))||{};
+
 let ctx=grafico.getContext("2d");
-ctx.clearRect(0,0,400,200);
 
-["CCC","DIG","PORTA","TP"].forEach((k,i)=>{
-let x=i*90+20;
-let obj=o[k]||0;
-let val=a[k];
-let m=Math.max(obj,val,1);
+let width = grafico.width;
+let height = grafico.height;
 
+ctx.clearRect(0,0,width,height);
+
+let keys=["CCC","DIG","PORTA","TP"];
+
+// 👉 margen lateral
+let padding = 20;
+
+// 👉 ancho disponible
+let areaWidth = width - padding*2;
+
+// 👉 espacio por grupo
+let groupWidth = areaWidth / keys.length;
+
+// 👉 ancho de cada barra
+let barWidth = 18;
+
+keys.forEach((k,i)=>{
+
+let baseX = padding + i*groupWidth;
+
+let obj = parseInt(o[k]||0);
+let val = a[k]||0;
+
+let max = Math.max(obj,val,1);
+
+let hObj = (obj/max)*(height-60);
+let hVal = (val/max)*(height-60);
+
+// mínimo visible
+if(val>0 && hVal<6) hVal=6;
+
+// posiciones
+let xObj = baseX + 5;
+let xVal = baseX + 5 + barWidth + 5;
+
+// BARRA OBJETIVO
 ctx.fillStyle="#ccc";
-ctx.fillRect(x,180-(obj/m)*150,30,(obj/m)*150);
+ctx.fillRect(xObj, height-hObj-30, barWidth, hObj);
 
+// BARRA AVANCE
 ctx.fillStyle="#4CAF50";
-let hVal = (val/m)*150;
+ctx.fillRect(xVal, height-hVal-30, barWidth, hVal);
 
-// altura mínima visible
-if (val > 0 && hVal < 5) hVal = 5;
-
-ctx.fillRect(x+35,180-hVal,30,hVal);
-
+// TEXTO NOMBRE
 ctx.fillStyle="black";
-ctx.fillText(k,x,195);
+ctx.font="12px Arial";
+ctx.fillText(k, baseX+5, height-10);
+
+// TEXTO OBJETIVO
+ctx.fillText(obj, xObj, height-hObj-35);
+
+// TEXTO AVANCE
+ctx.fillText(val, xVal, height-hVal-35);
+
 });
 }
-
 // EXPORTAR
 function exportar(){
 let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
