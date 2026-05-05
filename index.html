@@ -7,41 +7,24 @@
 
 <style>
 body { margin:0; font-family:Arial; background:#f4f4f4; }
-
 .tabs { display:flex; background:#4CAF50; }
-.tabs button {
-flex:1; padding:12px; border:none;
-background:#4CAF50; color:white;
-}
+.tabs button { flex:1; padding:12px; border:none; background:#4CAF50; color:white; }
 .tabs button.active { background:#388E3C; }
 
 .tab { display:none; padding:10px; }
 .tab.active { display:block; }
 
-.box {
-background:white;
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-}
+.box { background:white; padding:12px; border-radius:10px; margin-bottom:10px; }
 
 input, select, textarea {
-width:100%;
-padding:10px;
-margin:6px 0;
-font-size:16px;
-border-radius:6px;
-border:1px solid #ccc;
+width:100%; padding:10px; margin:6px 0;
+font-size:16px; border-radius:6px; border:1px solid #ccc;
 }
 
 button {
-width:100%;
-padding:12px;
-margin-top:6px;
-border:none;
-border-radius:8px;
-background:#4CAF50;
-color:white;
+width:100%; padding:12px; margin-top:6px;
+border:none; border-radius:8px;
+background:#4CAF50; color:white;
 }
 
 .table-container { overflow-x:auto; }
@@ -54,7 +37,6 @@ canvas { width:100%!important; height:220px!important; }
 
 <body>
 
-<!-- TABS -->
 <div class="tabs">
 <button class="active" onclick="cambiarTab(0)">Clientes</button>
 <button onclick="cambiarTab(1)">Progreso</button>
@@ -62,7 +44,7 @@ canvas { width:100%!important; height:220px!important; }
 <button onclick="cambiarTab(3)">Mensaje</button>
 </div>
 
-<!-- TAB 1 -->
+<!-- CLIENTES -->
 <div class="tab active">
 <div class="box">
 <form id="form">
@@ -82,7 +64,7 @@ canvas { width:100%!important; height:220px!important; }
 </div>
 </div>
 
-<!-- TAB 2 -->
+<!-- PROGRESO -->
 <div class="tab">
 <div class="box">
 CCC <input type="number" id="objCCC">
@@ -93,11 +75,11 @@ TP <input type="number" id="objTP">
 </div>
 
 <div class="box">
-<canvas id="grafico" width="400" height="200"></canvas>
+<canvas id="grafico"></canvas>
 </div>
 </div>
 
-<!-- TAB 3 -->
+<!-- LISTADO -->
 <div class="tab">
 <div class="box">
 <select id="filtroDia">
@@ -120,7 +102,7 @@ TP <input type="number" id="objTP">
 <tr>
 <th>Cod</th><th>Nom</th><th>Razón</th><th>Tel</th><th>Día</th>
 <th>CCC</th><th>DIG</th><th>PORTA</th><th>TP</th><th>IN1</th><th>IN2</th>
-<th>WA</th>
+<th>Editar</th><th>WA</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -128,14 +110,13 @@ TP <input type="number" id="objTP">
 </div>
 </div>
 
-<!-- TAB 4 -->
+<!-- MENSAJE -->
 <div class="tab">
 <div class="box">
 <textarea id="mensaje" placeholder="Hola {nombre}..."></textarea>
 </div>
 </div>
 
-<!-- LIBRERÍA EXCEL -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
@@ -148,7 +129,6 @@ document.querySelectorAll(".tab")[i].classList.add("active");
 document.querySelectorAll(".tabs button")[i].classList.add("active");
 }
 
-// VARIABLES
 const tabla = document.querySelector("#tabla tbody");
 
 // CREAR FILA
@@ -162,23 +142,45 @@ f.insertCell(3).textContent = cli.telefono;
 f.insertCell(4).textContent = cli.dia;
 
 (cli.checks || [false,false,false,false,false,false]).forEach(ch=>{
-let c = document.createElement("input");
+let c=document.createElement("input");
 c.type="checkbox";
 c.checked=ch;
-c.onchange = actualizarGrafico;
+c.onchange=actualizarGrafico;
 f.insertCell(-1).appendChild(c);
 });
 
-// WhatsApp
-let btn = document.createElement("button");
-btn.textContent="WA";
-btn.onclick=()=>{
+// EDITAR
+let btnE=document.createElement("button");
+btnE.textContent="Editar";
+
+btnE.onclick=()=>{
+if(btnE.textContent==="Editar"){
+for(let i=0;i<5;i++){
+let v=f.cells[i].textContent;
+f.cells[i].innerHTML=`<input value="${v}">`;
+}
+btnE.textContent="Guardar";
+}else{
+for(let i=0;i<5;i++){
+f.cells[i].textContent=f.cells[i].querySelector("input").value;
+}
+btnE.textContent="Editar";
+filtrar();
+}
+};
+
+f.insertCell(-1).appendChild(btnE);
+
+// WHATSAPP
+let btnW=document.createElement("button");
+btnW.textContent="WA";
+btnW.onclick=()=>{
 let tel=f.cells[3].textContent.replace(/\D/g,"");
 if(!tel.startsWith("54")) tel="54"+tel;
 let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
 window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
 };
-f.insertCell(-1).appendChild(btn);
+f.insertCell(-1).appendChild(btnW);
 }
 
 // FORM
@@ -200,19 +202,16 @@ form.reset();
 };
 
 // FILTRO
-buscar.oninput = filtrar;
-filtroDia.onchange = filtrar;
+buscar.oninput=filtrar;
+filtroDia.onchange=filtrar;
 
 function filtrar(){
-let texto = buscar.value.toLowerCase();
-let dia = filtroDia.value;
+let texto=buscar.value.toLowerCase();
+let dia=filtroDia.value;
 
 for(let f of tabla.rows){
-let filaTexto = (f.cells[0].textContent+" "+f.cells[1].textContent+" "+f.cells[2].textContent).toLowerCase();
-let coincideTexto = filaTexto.includes(texto);
-let coincideDia = (dia==="todos" || f.cells[4].textContent===dia);
-
-f.style.display = (coincideTexto && coincideDia) ? "" : "none";
+let t=(f.cells[0].textContent+" "+f.cells[1].textContent).toLowerCase();
+f.style.display=(t.includes(texto) && (dia==="todos"||f.cells[4].textContent===dia))?"":"none";
 }
 }
 
@@ -221,13 +220,7 @@ function exportar(){
 let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
 for(let f of tabla.rows){
-let l=[
-f.cells[0].textContent,
-f.cells[1].textContent,
-f.cells[2].textContent,
-f.cells[3].textContent,
-f.cells[4].textContent
-];
+let l=[f.cells[0].textContent,f.cells[1].textContent,f.cells[2].textContent,f.cells[3].textContent,f.cells[4].textContent];
 
 for(let i=5;i<=10;i++){
 l.push(f.cells[i].querySelector("input").checked?"SI":"NO");
@@ -242,7 +235,7 @@ a.download="clientes.csv";
 a.click();
 }
 
-// IMPORTAR EXCEL
+// IMPORTAR SIN BORRAR
 function importarExcel(){
 let file=document.getElementById("importar").files[0];
 if(!file) return alert("Seleccioná archivo");
@@ -256,70 +249,36 @@ let workbook=XLSX.read(data,{type:"array"});
 let hoja=workbook.Sheets[workbook.SheetNames[0]];
 let json=XLSX.utils.sheet_to_json(hoja,{defval:""});
 
-// 🔥 OBTENER CÓDIGOS EXISTENTES
-let existentes = [];
-for(let f of tabla.rows){
-existentes.push(f.cells[0].textContent);
-}
+let existentes=[...tabla.rows].map(f=>f.cells[0].textContent);
 
-let agregados = 0;
-let duplicados = 0;
+let add=0, dup=0;
 
-// 🔥 RECORRER EXCEL
 json.forEach(r=>{
+let cod=(r.Codigo||"").toString().trim();
+if(!cod) return;
 
-let codigo = (r.Codigo || "").toString().trim();
+if(existentes.includes(cod)){ dup++; return; }
 
-if(!codigo) return;
-
-// SI YA EXISTE → SALTAR
-if(existentes.includes(codigo)){
-duplicados++;
-return;
-}
-
-// CREAR CLIENTE
 crearFila({
 codigo:r.Codigo,
 nombre:r.Nombre,
 razon:r.Razon,
 telefono:r.Telefono,
 dia:r.Dia,
-checks:[
-r.CCC==="SI",
-r.DIG==="SI",
-r.PORTA==="SI",
-r.TP==="SI",
-r.IN1==="SI",
-r.IN2==="SI"
-]
+checks:[r.CCC==="SI",r.DIG==="SI",r.PORTA==="SI",r.TP==="SI",r.IN1==="SI",r.IN2==="SI"]
 });
 
-existentes.push(codigo);
-agregados++;
-
+existentes.push(cod);
+add++;
 });
 
-// ACTUALIZAR
 actualizarGrafico();
 filtrar();
 
-// MENSAJE FINAL
-alert(`Importación lista\n\n✔ Agregados: ${agregados}\n⚠ Duplicados: ${duplicados}`);
+alert(`✔ ${add} agregados\n⚠ ${dup} duplicados`);
 };
 
 reader.readAsArrayBuffer(file);
-}
-
-// OBJETIVOS
-function guardarObjetivos(){
-localStorage.setItem("obj",JSON.stringify({
-CCC:objCCC.value,
-DIG:objDIG.value,
-PORTA:objPORTA.value,
-TP:objTP.value
-}));
-actualizarGrafico();
 }
 
 // GRAFICO
@@ -333,32 +292,18 @@ if(f.cells[7].querySelector("input").checked)c.PORTA++;
 if(f.cells[8].querySelector("input").checked)c.TP++;
 }
 
-let o=JSON.parse(localStorage.getItem("obj"))||{};
 let ctx=grafico.getContext("2d");
+ctx.clearRect(0,0,400,200);
 
-ctx.clearRect(0,0,grafico.width,grafico.height);
-
-let keys=["CCC","DIG","PORTA","TP"];
-keys.forEach((k,i)=>{
-let obj=o[k]||0;
-let val=c[k]||0;
-
-let max=Math.max(obj,val,1);
-
-let hObj=(obj/max)*150;
-let hVal=(val/max)*150;
-
-ctx.fillStyle="#ccc";
-ctx.fillRect(i*90+20,180-hObj,20,hObj);
-
+let i=0;
+for(let k in c){
+let h=c[k]*10;
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(i*90+45,180-hVal,20,hVal);
-
-ctx.fillStyle="black";
-ctx.fillText(k,i*90+25,195);
-ctx.fillText(obj,i*90+20,180-hObj-5);
-ctx.fillText(val,i*90+45,180-hVal-5);
-});
+ctx.fillRect(i*80+30,180-h,30,h);
+ctx.fillText(k,i*80+30,195);
+ctx.fillText(c[k],i*80+35,180-h-5);
+i++;
+}
 }
 
 </script>
