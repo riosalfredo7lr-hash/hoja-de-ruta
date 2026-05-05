@@ -121,7 +121,7 @@ TP <input type="number" id="objTP">
 
 <script>
 
-// TABS
+// ===== TABS =====
 function cambiarTab(i){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
@@ -129,23 +129,60 @@ document.querySelectorAll(".tab")[i].classList.add("active");
 document.querySelectorAll(".tabs button")[i].classList.add("active");
 }
 
+// ===== VARIABLES =====
 const tabla = document.querySelector("#tabla tbody");
 
-// CREAR FILA
+// ===== GUARDAR =====
+function guardarDatos(){
+let datos=[];
+
+for(let f of tabla.rows){
+datos.push({
+codigo:f.cells[0].textContent,
+nombre:f.cells[1].textContent,
+razon:f.cells[2].textContent,
+telefono:f.cells[3].textContent,
+dia:f.cells[4].textContent,
+checks:[
+f.cells[5].querySelector("input").checked,
+f.cells[6].querySelector("input").checked,
+f.cells[7].querySelector("input").checked,
+f.cells[8].querySelector("input").checked,
+f.cells[9].querySelector("input").checked,
+f.cells[10].querySelector("input").checked
+]
+});
+}
+
+localStorage.setItem("clientes",JSON.stringify(datos));
+}
+
+// ===== CARGAR =====
+function cargarDatos(){
+let datos=JSON.parse(localStorage.getItem("clientes")||"[]");
+datos.forEach(crearFila);
+actualizarGrafico();
+}
+
+// ===== CREAR FILA =====
 function crearFila(cli){
-let f = tabla.insertRow();
+let f=tabla.insertRow();
 
-f.insertCell(0).textContent = cli.codigo;
-f.insertCell(1).textContent = cli.nombre;
-f.insertCell(2).textContent = cli.razon;
-f.insertCell(3).textContent = cli.telefono;
-f.insertCell(4).textContent = cli.dia;
+f.insertCell(0).textContent=cli.codigo;
+f.insertCell(1).textContent=cli.nombre;
+f.insertCell(2).textContent=cli.razon;
+f.insertCell(3).textContent=cli.telefono;
+f.insertCell(4).textContent=cli.dia;
 
-(cli.checks || [false,false,false,false,false,false]).forEach(ch=>{
+// CHECKS
+(cli.checks||[false,false,false,false,false,false]).forEach(ch=>{
 let c=document.createElement("input");
 c.type="checkbox";
 c.checked=ch;
-c.onchange=actualizarGrafico;
+c.onchange=()=>{
+actualizarGrafico();
+guardarDatos();
+};
 f.insertCell(-1).appendChild(c);
 });
 
@@ -166,6 +203,7 @@ f.cells[i].textContent=f.cells[i].querySelector("input").value;
 }
 btnE.textContent="Editar";
 filtrar();
+guardarDatos();
 }
 };
 
@@ -180,10 +218,11 @@ if(!tel.startsWith("54")) tel="54"+tel;
 let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
 window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
 };
+
 f.insertCell(-1).appendChild(btnW);
 }
 
-// FORM
+// ===== FORM =====
 form.onsubmit=e=>{
 e.preventDefault();
 
@@ -196,12 +235,13 @@ dia:dia.value,
 checks:[false,false,false,false,false,false]
 });
 
+guardarDatos();
 actualizarGrafico();
 filtrar();
 form.reset();
 };
 
-// FILTRO
+// ===== FILTRO =====
 buscar.oninput=filtrar;
 filtroDia.onchange=filtrar;
 
@@ -211,11 +251,11 @@ let dia=filtroDia.value;
 
 for(let f of tabla.rows){
 let t=(f.cells[0].textContent+" "+f.cells[1].textContent).toLowerCase();
-f.style.display=(t.includes(texto) && (dia==="todos"||f.cells[4].textContent===dia))?"":"none";
+f.style.display=(t.includes(texto)&&(dia==="todos"||f.cells[4].textContent===dia))?"":"none";
 }
 }
 
-// EXPORTAR
+// ===== EXPORTAR =====
 function exportar(){
 let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
@@ -235,7 +275,7 @@ a.download="clientes.csv";
 a.click();
 }
 
-// IMPORTAR SIN BORRAR
+// ===== IMPORTAR =====
 function importarExcel(){
 let file=document.getElementById("importar").files[0];
 if(!file) return alert("Seleccioná archivo");
@@ -251,13 +291,13 @@ let json=XLSX.utils.sheet_to_json(hoja,{defval:""});
 
 let existentes=[...tabla.rows].map(f=>f.cells[0].textContent);
 
-let add=0, dup=0;
+let add=0,dup=0;
 
 json.forEach(r=>{
 let cod=(r.Codigo||"").toString().trim();
 if(!cod) return;
 
-if(existentes.includes(cod)){ dup++; return; }
+if(existentes.includes(cod)){dup++;return;}
 
 crearFila({
 codigo:r.Codigo,
@@ -272,6 +312,7 @@ existentes.push(cod);
 add++;
 });
 
+guardarDatos();
 actualizarGrafico();
 filtrar();
 
@@ -281,7 +322,7 @@ alert(`✔ ${add} agregados\n⚠ ${dup} duplicados`);
 reader.readAsArrayBuffer(file);
 }
 
-// GRAFICO
+// ===== GRAFICO =====
 function actualizarGrafico(){
 let c={CCC:0,DIG:0,PORTA:0,TP:0};
 
@@ -305,6 +346,9 @@ ctx.fillText(c[k],i*80+35,180-h-5);
 i++;
 }
 }
+
+// INIT
+cargarDatos();
 
 </script>
 
