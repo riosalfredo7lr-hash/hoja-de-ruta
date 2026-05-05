@@ -10,8 +10,8 @@ body { margin:0; font-family:Arial; background:#f4f4f4; }
 
 .tabs { display:flex; background:#4CAF50; }
 .tabs button {
-flex:1; padding:12px; border:none; background:#4CAF50;
-color:white; font-size:14px;
+flex:1; padding:12px; border:none;
+background:#4CAF50; color:white;
 }
 .tabs button.active { background:#388E3C; }
 
@@ -19,38 +19,50 @@ color:white; font-size:14px;
 .tab.active { display:block; }
 
 .box {
-background:white; padding:12px; border-radius:10px; margin-bottom:12px;
+background:white;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
 }
 
 input, select, textarea {
-width:100%; padding:10px; margin:6px 0;
-font-size:16px; border-radius:6px; border:1px solid #ccc;
+width:100%;
+padding:10px;
+margin:6px 0;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
 }
 
 button {
-width:100%; padding:12px; margin-top:8px;
-font-size:16px; border:none; border-radius:8px;
-background:#4CAF50; color:white;
+width:100%;
+padding:12px;
+margin-top:6px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
 }
 
 .table-container { overflow-x:auto; }
-table { width:100%; font-size:12px; }
-th, td { padding:4px; border:1px solid #ccc; }
+table { width:100%; font-size:12px; border-collapse: collapse;}
+th, td { padding:4px; border:1px solid #ccc; text-align:center;}
 
-canvas { width:100%!important; height:200px!important; }
+canvas { width:100%!important; height:220px!important; }
 </style>
 </head>
 
 <body>
 
+<!-- TABS -->
 <div class="tabs">
-<button class="active" onclick="tab(0)">Clientes</button>
-<button onclick="tab(1)">Progreso</button>
-<button onclick="tab(2)">Listado</button>
-<button onclick="tab(3)">Mensaje</button>
+<button class="active" onclick="cambiarTab(0)">Clientes</button>
+<button onclick="cambiarTab(1)">Progreso</button>
+<button onclick="cambiarTab(2)">Listado</button>
+<button onclick="cambiarTab(3)">Mensaje</button>
 </div>
 
-<!-- CLIENTES -->
+<!-- TAB 1 -->
 <div class="tab active">
 <div class="box">
 <form id="form">
@@ -70,7 +82,7 @@ canvas { width:100%!important; height:200px!important; }
 </div>
 </div>
 
-<!-- PROGRESO -->
+<!-- TAB 2 -->
 <div class="tab">
 <div class="box">
 CCC <input type="number" id="objCCC">
@@ -85,26 +97,21 @@ TP <input type="number" id="objTP">
 </div>
 </div>
 
-<!-- LISTADO -->
+<!-- TAB 3 -->
+<div class="tab">
 <div class="box">
-
 <select id="filtroDia">
 <option value="todos">Todos</option>
-<option>Lunes</option>
-<option>Martes</option>
-<option>Miércoles</option>
-<option>Jueves</option>
-<option>Viernes</option>
-<option>Sábado</option>
+<option>Lunes</option><option>Martes</option><option>Miércoles</option>
+<option>Jueves</option><option>Viernes</option><option>Sábado</option>
 </select>
 
-<input id="buscar" placeholder="Buscar">
+<input id="buscar" placeholder="Buscar cliente...">
 
 <input type="file" id="importar" accept=".xlsx">
 <button onclick="importarExcel()">Importar Excel</button>
 
 <button onclick="exportar()">Exportar</button>
-
 </div>
 
 <div class="box table-container">
@@ -121,198 +128,95 @@ TP <input type="number" id="objTP">
 </div>
 </div>
 
-<!-- MENSAJE -->
+<!-- TAB 4 -->
 <div class="tab">
 <div class="box">
 <textarea id="mensaje" placeholder="Hola {nombre}..."></textarea>
 </div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- LIBRERÍA EXCEL -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyCixATEXS31JGj_t3-p9dHCikD9JeP1xhU",
-    authDomain: "hoja-de-ruta1.firebaseapp.com",
-    projectId: "hoja-de-ruta1",
-    storageBucket: "hoja-de-ruta1.firebasestorage.app",
-    messagingSenderId: "591099292473",
-    appId: "1:591099292473:web:623d2e0094a92a072dd6e8",
-    measurementId: "G-JPRHWVGT0K"
-  };
 
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const tabla=document.querySelector("#tabla tbody");
-const buscar=document.getElementById("buscar");
-const filtroDia=document.getElementById("filtroDia");
-const grafico=document.getElementById("grafico");
-
-// ===== TABS =====
-function tab(i){
+// TABS
+function cambiarTab(i){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
 document.querySelectorAll(".tab")[i].classList.add("active");
 document.querySelectorAll(".tabs button")[i].classList.add("active");
 }
 
-// ===== GUARDAR =====
-function guardar(){
-let d=[];
-for(let f of tabla.rows){
-d.push({
-c:f.cells[0].textContent,
-n:f.cells[1].textContent,
-r:f.cells[2].textContent,
-t:f.cells[3].textContent,
-d:f.cells[4].textContent,
-ch:[...Array(6)].map((_,i)=>f.cells[i+5].querySelector("input").checked)
-});
-}
-localStorage.setItem("data",JSON.stringify(d));
-}
+// VARIABLES
+const tabla = document.querySelector("#tabla tbody");
 
-// ===== CREAR FILA =====
-function fila(o){
-let f=tabla.insertRow();
-f.insertCell(0).textContent=o.c;
-f.insertCell(1).textContent=o.n;
-f.insertCell(2).textContent=o.r;
-f.insertCell(3).textContent=o.t;
-f.insertCell(4).textContent=o.d;
+// CREAR FILA
+function crearFila(cli){
+let f = tabla.insertRow();
 
-o.ch.forEach(c=>{
-let i=document.createElement("input");
-i.type="checkbox"; i.checked=c;
-i.onchange=()=>{guardar();graf();}
-f.insertCell(-1).appendChild(i);
+f.insertCell(0).textContent = cli.codigo;
+f.insertCell(1).textContent = cli.nombre;
+f.insertCell(2).textContent = cli.razon;
+f.insertCell(3).textContent = cli.telefono;
+f.insertCell(4).textContent = cli.dia;
+
+(cli.checks || [false,false,false,false,false,false]).forEach(ch=>{
+let c = document.createElement("input");
+c.type="checkbox";
+c.checked=ch;
+c.onchange = actualizarGrafico;
+f.insertCell(-1).appendChild(c);
 });
 
-// WA
-let b=document.createElement("button");
-b.textContent="WA";
-b.onclick=()=>{
+// WhatsApp
+let btn = document.createElement("button");
+btn.textContent="WA";
+btn.onclick=()=>{
 let tel=f.cells[3].textContent.replace(/\D/g,"");
-if(!tel.startsWith("54"))tel="54"+tel;
-let msg=document.getElementById("mensaje").value.replace("{nombre}",f.cells[1].textContent);
+if(!tel.startsWith("54")) tel="54"+tel;
+let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
 window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
 };
-f.insertCell(-1).appendChild(b);
+f.insertCell(-1).appendChild(btn);
 }
 
-// ===== FORM =====
+// FORM
 form.onsubmit=e=>{
 e.preventDefault();
-fila({
-c:codigo.value,
-n:nombre.value,
-r:razon.value,
-t:telefono.value,
-d:dia.value,
-ch:[false,false,false,false,false,false]
+
+crearFila({
+codigo:codigo.value,
+nombre:nombre.value,
+razon:razon.value,
+telefono:telefono.value,
+dia:dia.value,
+checks:[false,false,false,false,false,false]
 });
-guardar();
-graf();
+
+actualizarGrafico();
 filtrar();
 form.reset();
 };
 
-// ===== FILTRO (ARREGLADO) =====
+// FILTRO
+buscar.oninput = filtrar;
+filtroDia.onchange = filtrar;
+
 function filtrar(){
 let texto = buscar.value.toLowerCase();
 let dia = filtroDia.value;
 
 for(let f of tabla.rows){
-
-let textoFila = (
-f.cells[0].textContent + " " +
-f.cells[1].textContent + " " +
-f.cells[2].textContent
-).toLowerCase();
-
-let coincideTexto = textoFila.includes(texto);
+let filaTexto = (f.cells[0].textContent+" "+f.cells[1].textContent+" "+f.cells[2].textContent).toLowerCase();
+let coincideTexto = filaTexto.includes(texto);
 let coincideDia = (dia==="todos" || f.cells[4].textContent===dia);
 
 f.style.display = (coincideTexto && coincideDia) ? "" : "none";
 }
 }
 
-// EVENTOS FILTRO
-buscar.oninput = filtrar;
-filtroDia.onchange = filtrar;
-
-// ===== OBJETIVOS =====
-function guardarObjetivos(){
-localStorage.setItem("obj",JSON.stringify({
-CCC:objCCC.value,
-DIG:objDIG.value,
-PORTA:objPORTA.value,
-TP:objTP.value
-}));
-graf();
-}
-
-// ===== GRAFICO =====
-function graf(){
-let a={CCC:0,DIG:0,PORTA:0,TP:0};
-
-for(let f of tabla.rows){
-if(f.cells[5].querySelector("input").checked)a.CCC++;
-if(f.cells[6].querySelector("input").checked)a.DIG++;
-if(f.cells[7].querySelector("input").checked)a.PORTA++;
-if(f.cells[8].querySelector("input").checked)a.TP++;
-}
-
-let o=JSON.parse(localStorage.getItem("obj"))||{};
-let ctx=grafico.getContext("2d");
-
-let width=grafico.width;
-let height=grafico.height;
-
-ctx.clearRect(0,0,width,height);
-
-let keys=["CCC","DIG","PORTA","TP"];
-let padding=20;
-let groupWidth=(width-padding*2)/keys.length;
-let barWidth=18;
-
-keys.forEach((k,i)=>{
-
-let baseX=padding+i*groupWidth;
-
-let obj=parseInt(o[k]||0);
-let val=a[k]||0;
-
-let max=Math.max(obj,val,1);
-
-let hObj=(obj/max)*(height-60);
-let hVal=(val/max)*(height-60);
-
-if(val>0 && hVal<6) hVal=6;
-
-let xObj=baseX+5;
-let xVal=baseX+5+barWidth+5;
-
-ctx.fillStyle="#ccc";
-ctx.fillRect(xObj,height-hObj-30,barWidth,hObj);
-
-ctx.fillStyle="#4CAF50";
-ctx.fillRect(xVal,height-hVal-30,barWidth,hVal);
-
-ctx.fillStyle="black";
-ctx.font="12px Arial";
-
-ctx.fillText(k, baseX+5, height-10);
-ctx.fillText(obj, xObj, height-hObj-35);
-ctx.fillText(val, xVal, height-hVal-35);
-
-});
-}
-
-// ===== EXPORTAR =====
+// EXPORTAR
 function exportar(){
 let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
@@ -338,59 +242,125 @@ a.download="clientes.csv";
 a.click();
 }
 
-//===== IMPORTAR=====
-function importarCSV() {
-  const input = document.getElementById("importar");
-  const file = input.files[0];
+// IMPORTAR EXCEL
+function importarExcel(){
+let file=document.getElementById("importar").files[0];
+if(!file) return alert("Seleccioná archivo");
 
-  if (!file) {
-    alert("Seleccioná un archivo");
-    return;
-  }
+let reader=new FileReader();
 
-  const reader = new FileReader();
+reader.onload=e=>{
+let data=new Uint8Array(e.target.result);
+let workbook=XLSX.read(data,{type:"array"});
 
-  reader.onload = function(e) {
-    const texto = e.target.result;
+let hoja=workbook.Sheets[workbook.SheetNames[0]];
+let json=XLSX.utils.sheet_to_json(hoja,{defval:""});
 
-    const filas = texto.split("\n");
-
-    // borrar tabla actual
-    tabla.innerHTML = "";
-
-    filas.slice(1).forEach(fila => {
-      if (!fila.trim()) return;
-
-      let cols = fila.split(";");
-
-      crearFila({
-        codigo: cols[0],
-        nombre: cols[1],
-        razon: cols[2],
-        telefono: cols[3],
-        dia: cols[4],
-        checks: [
-          cols[5] === "SI",
-          cols[6] === "SI",
-          cols[7] === "SI",
-          cols[8] === "SI",
-          cols[9] === "SI",
-          cols[10] === "SI"
-        ]
-      });
-    });
-
-    guardarDatos();
-    actualizarGrafico();
-
-    alert("Importación completa");
-  };
-
-  reader.readAsText(file);
+// 🔥 OBTENER CÓDIGOS EXISTENTES
+let existentes = [];
+for(let f of tabla.rows){
+existentes.push(f.cells[0].textContent);
 }
-// ===== INIT =====
-(JSON.parse(localStorage.getItem("data"))||[]).forEach(fila);
-graf();
+
+let agregados = 0;
+let duplicados = 0;
+
+// 🔥 RECORRER EXCEL
+json.forEach(r=>{
+
+let codigo = (r.Codigo || "").toString().trim();
+
+if(!codigo) return;
+
+// SI YA EXISTE → SALTAR
+if(existentes.includes(codigo)){
+duplicados++;
+return;
+}
+
+// CREAR CLIENTE
+crearFila({
+codigo:r.Codigo,
+nombre:r.Nombre,
+razon:r.Razon,
+telefono:r.Telefono,
+dia:r.Dia,
+checks:[
+r.CCC==="SI",
+r.DIG==="SI",
+r.PORTA==="SI",
+r.TP==="SI",
+r.IN1==="SI",
+r.IN2==="SI"
+]
+});
+
+existentes.push(codigo);
+agregados++;
+
+});
+
+// ACTUALIZAR
+actualizarGrafico();
+filtrar();
+
+// MENSAJE FINAL
+alert(`Importación lista\n\n✔ Agregados: ${agregados}\n⚠ Duplicados: ${duplicados}`);
+};
+
+reader.readAsArrayBuffer(file);
+}
+
+// OBJETIVOS
+function guardarObjetivos(){
+localStorage.setItem("obj",JSON.stringify({
+CCC:objCCC.value,
+DIG:objDIG.value,
+PORTA:objPORTA.value,
+TP:objTP.value
+}));
+actualizarGrafico();
+}
+
+// GRAFICO
+function actualizarGrafico(){
+let c={CCC:0,DIG:0,PORTA:0,TP:0};
+
+for(let f of tabla.rows){
+if(f.cells[5].querySelector("input").checked)c.CCC++;
+if(f.cells[6].querySelector("input").checked)c.DIG++;
+if(f.cells[7].querySelector("input").checked)c.PORTA++;
+if(f.cells[8].querySelector("input").checked)c.TP++;
+}
+
+let o=JSON.parse(localStorage.getItem("obj"))||{};
+let ctx=grafico.getContext("2d");
+
+ctx.clearRect(0,0,grafico.width,grafico.height);
+
+let keys=["CCC","DIG","PORTA","TP"];
+keys.forEach((k,i)=>{
+let obj=o[k]||0;
+let val=c[k]||0;
+
+let max=Math.max(obj,val,1);
+
+let hObj=(obj/max)*150;
+let hVal=(val/max)*150;
+
+ctx.fillStyle="#ccc";
+ctx.fillRect(i*90+20,180-hObj,20,hObj);
+
+ctx.fillStyle="#4CAF50";
+ctx.fillRect(i*90+45,180-hVal,20,hVal);
+
+ctx.fillStyle="black";
+ctx.fillText(k,i*90+25,195);
+ctx.fillText(obj,i*90+20,180-hObj-5);
+ctx.fillText(val,i*90+45,180-hVal-5);
+});
+}
+
 </script>
 
 </body>
