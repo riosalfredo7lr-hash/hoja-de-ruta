@@ -332,6 +332,56 @@ a.download="clientes.csv";
 a.click();
 }
 
+//===== IMPORTAR=====
+function importarCSV() {
+  const input = document.getElementById("importar");
+  const file = input.files[0];
+
+  if (!file) {
+    alert("Seleccioná un archivo");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const texto = e.target.result;
+
+    const filas = texto.split("\n");
+
+    // borrar tabla actual
+    tabla.innerHTML = "";
+
+    filas.slice(1).forEach(fila => {
+      if (!fila.trim()) return;
+
+      let cols = fila.split(";");
+
+      crearFila({
+        codigo: cols[0],
+        nombre: cols[1],
+        razon: cols[2],
+        telefono: cols[3],
+        dia: cols[4],
+        checks: [
+          cols[5] === "SI",
+          cols[6] === "SI",
+          cols[7] === "SI",
+          cols[8] === "SI",
+          cols[9] === "SI",
+          cols[10] === "SI"
+        ]
+      });
+    });
+
+    guardarDatos();
+    actualizarGrafico();
+
+    alert("Importación completa");
+  };
+
+  reader.readAsText(file);
+}
 // ===== INIT =====
 (JSON.parse(localStorage.getItem("data"))||[]).forEach(fila);
 graf();
