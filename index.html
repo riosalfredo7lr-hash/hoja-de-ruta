@@ -324,27 +324,82 @@ reader.readAsArrayBuffer(file);
 
 // ===== GRAFICO =====
 function actualizarGrafico(){
-let c={CCC:0,DIG:0,PORTA:0,TP:0};
 
+// CONTADORES
+let c={
+CCC:0,
+DIG:0,
+PORTA:0,
+TP:0
+};
+
+// CONTAR CHECKS
 for(let f of tabla.rows){
-if(f.cells[5].querySelector("input").checked)c.CCC++;
-if(f.cells[6].querySelector("input").checked)c.DIG++;
-if(f.cells[7].querySelector("input").checked)c.PORTA++;
-if(f.cells[8].querySelector("input").checked)c.TP++;
+
+if(f.cells[5].querySelector("input").checked) c.CCC++;
+if(f.cells[6].querySelector("input").checked) c.DIG++;
+if(f.cells[7].querySelector("input").checked) c.PORTA++;
+if(f.cells[8].querySelector("input").checked) c.TP++;
+
 }
+
+// OBJETIVOS
+let objetivos={
+CCC:Number(objCCC.value)||0,
+DIG:Number(objDIG.value)||0,
+PORTA:Number(objPORTA.value)||0,
+TP:Number(objTP.value)||0
+};
 
 let ctx=grafico.getContext("2d");
-ctx.clearRect(0,0,400,200);
 
-let i=0;
-for(let k in c){
-let h=c[k]*10;
+// LIMPIAR
+ctx.clearRect(0,0,grafico.width,grafico.height);
+
+let keys=["CCC","DIG","PORTA","TP"];
+
+keys.forEach((k,i)=>{
+
+let obj=objetivos[k];
+let val=c[k];
+
+// ALTURA MÁXIMA
+let max=Math.max(obj,val,1);
+
+// BARRAS
+let hObj=(obj/max)*140;
+let hVal=(val/max)*140;
+
+// POSICIÓN
+let x=i*90+20;
+
+// OBJETIVO (GRIS)
+ctx.fillStyle="#ccc";
+ctx.fillRect(x,180-hObj,25,hObj);
+
+// AVANCE (VERDE)
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(i*80+30,180-h,30,h);
-ctx.fillText(k,i*80+30,195);
-ctx.fillText(c[k],i*80+35,180-h-5);
-i++;
-}
+ctx.fillRect(x+30,180-hVal,25,hVal);
+
+// TEXTOS
+ctx.fillStyle="black";
+
+ctx.fillText(k,x+5,195);
+
+ctx.fillText(
+`${val}`,
+x+35,
+180-hVal-5
+);
+
+ctx.fillText(
+`${obj}`,
+x,
+180-hObj-5
+);
+
+});
+
 }
 
 // INIT
