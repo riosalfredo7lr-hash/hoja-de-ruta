@@ -6,37 +6,99 @@
 <title>Hoja de Ruta</title>
 
 <style>
-body { margin:0; font-family:Arial; background:#f4f4f4; }
-.tabs { display:flex; background:#4CAF50; }
-.tabs button { flex:1; padding:12px; border:none; background:#4CAF50; color:white; }
-.tabs button.active { background:#388E3C; }
-
-.tab { display:none; padding:10px; }
-.tab.active { display:block; }
-
-.box { background:white; padding:12px; border-radius:10px; margin-bottom:10px; }
-
-input, select, textarea {
-width:100%; padding:10px; margin:6px 0;
-font-size:16px; border-radius:6px; border:1px solid #ccc;
+body{
+margin:0;
+font-family:Arial;
+background:#f4f4f4;
 }
 
-button {
-width:100%; padding:12px; margin-top:6px;
-border:none; border-radius:8px;
-background:#4CAF50; color:white;
+.tabs{
+display:flex;
+background:#4CAF50;
+position:sticky;
+top:0;
+z-index:100;
 }
 
-.table-container { overflow-x:auto; }
-table { width:100%; font-size:12px; border-collapse: collapse;}
-th, td { padding:4px; border:1px solid #ccc; text-align:center;}
+.tabs button{
+flex:1;
+padding:12px;
+border:none;
+background:#4CAF50;
+color:white;
+font-size:14px;
+}
 
-canvas { width:100%!important; height:220px!important; }
+.tabs button.active{
+background:#388E3C;
+}
+
+.tab{
+display:none;
+padding:10px;
+}
+
+.tab.active{
+display:block;
+}
+
+.box{
+background:white;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+input,select,textarea{
+width:100%;
+padding:10px;
+margin:6px 0;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:6px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+}
+
+.table-container{
+overflow-x:auto;
+}
+
+table{
+width:100%;
+font-size:12px;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:4px;
+border:1px solid #ccc;
+text-align:center;
+}
+
+canvas{
+width:100%!important;
+height:260px!important;
+background:white;
+border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
+<!-- TABS -->
 <div class="tabs">
 <button class="active" onclick="cambiarTab(0)">Clientes</button>
 <button onclick="cambiarTab(1)">Progreso</button>
@@ -47,73 +109,131 @@ canvas { width:100%!important; height:220px!important; }
 <!-- CLIENTES -->
 <div class="tab active">
 <div class="box">
+
 <form id="form">
+
 <input id="codigo" placeholder="Código" required>
+
 <input id="nombre" placeholder="Nombre" required>
+
 <input id="razon" placeholder="Razón Social" required>
+
 <input id="telefono" placeholder="Teléfono">
 
 <select id="dia" required>
 <option value="">Día</option>
-<option>Lunes</option><option>Martes</option><option>Miércoles</option>
-<option>Jueves</option><option>Viernes</option><option>Sábado</option>
+<option>Lunes</option>
+<option>Martes</option>
+<option>Miércoles</option>
+<option>Jueves</option>
+<option>Viernes</option>
+<option>Sábado</option>
 </select>
 
-<button>Agregar</button>
+<button type="submit">Agregar</button>
+
 </form>
+
 </div>
 </div>
 
 <!-- PROGRESO -->
 <div class="tab">
+
 <div class="box">
-CCC <input type="number" id="objCCC">
-DIG <input type="number" id="objDIG">
-PORTA <input type="number" id="objPORTA">
-TP <input type="number" id="objTP">
-<button onclick="guardarObjetivos()">Guardar objetivos</button>
+
+<h3>Objetivos</h3>
+
+CCC
+<input type="number" id="objCCC">
+
+DIG
+<input type="number" id="objDIG">
+
+PORTA
+<input type="number" id="objPORTA">
+
+TP
+<input type="number" id="objTP">
+
+<button onclick="guardarObjetivos()">
+Guardar objetivos
+</button>
+
 </div>
 
 <div class="box">
-<canvas id="grafico"></canvas>
+<canvas id="grafico" width="400" height="220"></canvas>
 </div>
+
 </div>
 
 <!-- LISTADO -->
 <div class="tab">
+
 <div class="box">
+
 <select id="filtroDia">
 <option value="todos">Todos</option>
-<option>Lunes</option><option>Martes</option><option>Miércoles</option>
-<option>Jueves</option><option>Viernes</option><option>Sábado</option>
+<option>Lunes</option>
+<option>Martes</option>
+<option>Miércoles</option>
+<option>Jueves</option>
+<option>Viernes</option>
+<option>Sábado</option>
 </select>
 
 <input id="buscar" placeholder="Buscar cliente...">
 
 <input type="file" id="importar" accept=".xlsx">
-<button onclick="importarExcel()">Importar Excel</button>
 
-<button onclick="exportar()">Exportar</button>
+<button onclick="importarExcel()">
+Importar Excel
+</button>
+
+<button onclick="exportar()">
+Exportar
+</button>
+
 </div>
 
 <div class="box table-container">
+
 <table id="tabla">
+
 <thead>
 <tr>
-<th>Cod</th><th>Nom</th><th>Razón</th><th>Tel</th><th>Día</th>
-<th>CCC</th><th>DIG</th><th>PORTA</th><th>TP</th><th>IN1</th><th>IN2</th>
-<th>Editar</th><th>WA</th>
+<th>Cod</th>
+<th>Nom</th>
+<th>Razón</th>
+<th>Tel</th>
+<th>Día</th>
+
+<th>CCC</th>
+<th>DIG</th>
+<th>PORTA</th>
+<th>TP</th>
+<th>IN1</th>
+<th>IN2</th>
+
+<th>✏️</th>
+<th>📲</th>
 </tr>
 </thead>
+
 <tbody></tbody>
+
 </table>
+
 </div>
 </div>
 
 <!-- MENSAJE -->
 <div class="tab">
 <div class="box">
+
 <textarea id="mensaje" placeholder="Hola {nombre}..."></textarea>
+
 </div>
 </div>
 
@@ -123,49 +243,110 @@ TP <input type="number" id="objTP">
 
 // ===== TABS =====
 function cambiarTab(i){
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-document.querySelectorAll(".tab")[i].classList.add("active");
-document.querySelectorAll(".tabs button")[i].classList.add("active");
+
+document.querySelectorAll(".tab")
+.forEach(t=>t.classList.remove("active"));
+
+document.querySelectorAll(".tabs button")
+.forEach(b=>b.classList.remove("active"));
+
+document.querySelectorAll(".tab")[i]
+.classList.add("active");
+
+document.querySelectorAll(".tabs button")[i]
+.classList.add("active");
+
 }
 
 // ===== VARIABLES =====
-const tabla = document.querySelector("#tabla tbody");
+const tabla=document.querySelector("#tabla tbody");
 
-// ===== GUARDAR =====
+// ===== GUARDAR CLIENTES =====
 function guardarDatos(){
+
 let datos=[];
 
 for(let f of tabla.rows){
+
 datos.push({
+
 codigo:f.cells[0].textContent,
 nombre:f.cells[1].textContent,
 razon:f.cells[2].textContent,
 telefono:f.cells[3].textContent,
 dia:f.cells[4].textContent,
+
 checks:[
+
 f.cells[5].querySelector("input").checked,
 f.cells[6].querySelector("input").checked,
 f.cells[7].querySelector("input").checked,
 f.cells[8].querySelector("input").checked,
 f.cells[9].querySelector("input").checked,
 f.cells[10].querySelector("input").checked
+
 ]
+
 });
+
 }
 
-localStorage.setItem("clientes",JSON.stringify(datos));
+localStorage.setItem(
+"clientes",
+JSON.stringify(datos)
+);
+
 }
 
-// ===== CARGAR =====
+// ===== CARGAR CLIENTES =====
 function cargarDatos(){
-let datos=JSON.parse(localStorage.getItem("clientes")||"[]");
-datos.forEach(crearFila);
+
+let datos=JSON.parse(
+localStorage.getItem("clientes") || "[]"
+);
+
+datos.forEach(cli=>crearFila(cli));
+
+}
+
+// ===== GUARDAR OBJETIVOS =====
+function guardarObjetivos(){
+
+let obj={
+
+CCC:objCCC.value,
+DIG:objDIG.value,
+PORTA:objPORTA.value,
+TP:objTP.value
+
+};
+
+localStorage.setItem(
+"objetivos",
+JSON.stringify(obj)
+);
+
 actualizarGrafico();
+
+}
+
+// ===== CARGAR OBJETIVOS =====
+function cargarObjetivos(){
+
+let obj=JSON.parse(
+localStorage.getItem("objetivos") || "{}"
+);
+
+objCCC.value=obj.CCC || "";
+objDIG.value=obj.DIG || "";
+objPORTA.value=obj.PORTA || "";
+objTP.value=obj.TP || "";
+
 }
 
 // ===== CREAR FILA =====
 function crearFila(cli){
+
 let f=tabla.insertRow();
 
 f.insertCell(0).textContent=cli.codigo;
@@ -175,70 +356,129 @@ f.insertCell(3).textContent=cli.telefono;
 f.insertCell(4).textContent=cli.dia;
 
 // CHECKS
-(cli.checks||[false,false,false,false,false,false]).forEach(ch=>{
+(cli.checks || [false,false,false,false,false,false])
+.forEach(ch=>{
+
 let c=document.createElement("input");
+
 c.type="checkbox";
 c.checked=ch;
+
 c.onchange=()=>{
-actualizarGrafico();
+
 guardarDatos();
+actualizarGrafico();
+
 };
+
 f.insertCell(-1).appendChild(c);
+
 });
 
-// EDITAR
+// ===== EDITAR =====
 let btnE=document.createElement("button");
-btnE.textContent="Editar";
+
+btnE.textContent="✏️";
 
 btnE.onclick=()=>{
-if(btnE.textContent==="Editar"){
+
+if(btnE.textContent==="✏️"){
+
 for(let i=0;i<5;i++){
+
 let v=f.cells[i].textContent;
-f.cells[i].innerHTML=`<input value="${v}">`;
+
+f.cells[i].innerHTML=
+`<input value="${v}">`;
+
 }
-btnE.textContent="Guardar";
+
+btnE.textContent="💾";
+
 }else{
+
 for(let i=0;i<5;i++){
-f.cells[i].textContent=f.cells[i].querySelector("input").value;
+
+f.cells[i].textContent=
+f.cells[i]
+.querySelector("input")
+.value;
+
 }
-btnE.textContent="Editar";
-filtrar();
+
+btnE.textContent="✏️";
+
 guardarDatos();
+filtrar();
+
 }
+
 };
 
 f.insertCell(-1).appendChild(btnE);
 
-// WHATSAPP
+// ===== WHATSAPP =====
 let btnW=document.createElement("button");
-btnW.textContent="WA";
+
+btnW.textContent="📲";
+
 btnW.onclick=()=>{
-let tel=f.cells[3].textContent.replace(/\D/g,"");
-if(!tel.startsWith("54")) tel="54"+tel;
-let msg=mensaje.value.replace("{nombre}",f.cells[1].textContent);
-window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
+
+let tel=f.cells[3]
+.textContent
+.replace(/\D/g,"");
+
+if(!tel.startsWith("54")){
+tel="54"+tel;
+}
+
+let msg=mensaje.value.replace(
+"{nombre}",
+f.cells[1].textContent
+);
+
+window.open(
+`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`
+);
+
 };
 
 f.insertCell(-1).appendChild(btnW);
+
 }
 
 // ===== FORM =====
 form.onsubmit=e=>{
+
 e.preventDefault();
 
 crearFila({
+
 codigo:codigo.value,
 nombre:nombre.value,
 razon:razon.value,
 telefono:telefono.value,
 dia:dia.value,
-checks:[false,false,false,false,false,false]
+
+checks:[
+false,
+false,
+false,
+false,
+false,
+false
+]
+
 });
 
 guardarDatos();
+
 actualizarGrafico();
+
 filtrar();
+
 form.reset();
+
 };
 
 // ===== FILTRO =====
@@ -246,166 +486,303 @@ buscar.oninput=filtrar;
 filtroDia.onchange=filtrar;
 
 function filtrar(){
+
 let texto=buscar.value.toLowerCase();
+
 let dia=filtroDia.value;
 
 for(let f of tabla.rows){
-let t=(f.cells[0].textContent+" "+f.cells[1].textContent).toLowerCase();
-f.style.display=(t.includes(texto)&&(dia==="todos"||f.cells[4].textContent===dia))?"":"none";
+
+let t=(
+
+f.cells[0].textContent+" "+
+f.cells[1].textContent+" "+
+f.cells[2].textContent
+
+).toLowerCase();
+
+let okTexto=t.includes(texto);
+
+let okDia=
+dia==="todos" ||
+f.cells[4].textContent===dia;
+
+f.style.display=
+(okTexto && okDia)
+? ""
+: "none";
+
 }
+
 }
 
 // ===== EXPORTAR =====
 function exportar(){
-let csv="sep=;\nCodigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
+
+let csv=
+"sep=;\n"+
+"Codigo;Nombre;Razon;Telefono;Dia;CCC;DIG;PORTA;TP;IN1;IN2\n";
 
 for(let f of tabla.rows){
-let l=[f.cells[0].textContent,f.cells[1].textContent,f.cells[2].textContent,f.cells[3].textContent,f.cells[4].textContent];
+
+let l=[
+
+f.cells[0].textContent,
+f.cells[1].textContent,
+f.cells[2].textContent,
+f.cells[3].textContent,
+f.cells[4].textContent
+
+];
 
 for(let i=5;i<=10;i++){
-l.push(f.cells[i].querySelector("input").checked?"SI":"NO");
+
+l.push(
+f.cells[i]
+.querySelector("input")
+.checked
+? "SI"
+: "NO"
+);
+
 }
 
 csv+=l.join(";")+"\n";
+
 }
 
 let a=document.createElement("a");
-a.href=URL.createObjectURL(new Blob(["\ufeff"+csv]));
+
+a.href=URL.createObjectURL(
+new Blob(["\ufeff"+csv])
+);
+
 a.download="clientes.csv";
+
 a.click();
+
 }
 
 // ===== IMPORTAR =====
 function importarExcel(){
-let file=document.getElementById("importar").files[0];
-if(!file) return alert("Seleccioná archivo");
+
+let file=document
+.getElementById("importar")
+.files[0];
+
+if(!file){
+alert("Seleccioná archivo");
+return;
+}
 
 let reader=new FileReader();
 
 reader.onload=e=>{
+
 let data=new Uint8Array(e.target.result);
-let workbook=XLSX.read(data,{type:"array"});
 
-let hoja=workbook.Sheets[workbook.SheetNames[0]];
-let json=XLSX.utils.sheet_to_json(hoja,{defval:""});
+let workbook=XLSX.read(
+data,
+{type:"array"}
+);
 
-let existentes=[...tabla.rows].map(f=>f.cells[0].textContent);
+let hoja=
+workbook.Sheets[
+workbook.SheetNames[0]
+];
 
-let add=0,dup=0;
+let json=XLSX.utils.sheet_to_json(
+hoja,
+{defval:""}
+);
+
+let existentes=[
+...tabla.rows
+].map(f=>f.cells[0].textContent);
+
+let add=0;
+let dup=0;
 
 json.forEach(r=>{
-let cod=(r.Codigo||"").toString().trim();
+
+let cod=(r.Codigo || "")
+.toString()
+.trim();
+
 if(!cod) return;
 
-if(existentes.includes(cod)){dup++;return;}
+if(existentes.includes(cod)){
+
+dup++;
+return;
+
+}
 
 crearFila({
+
 codigo:r.Codigo,
 nombre:r.Nombre,
 razon:r.Razon,
 telefono:r.Telefono,
 dia:r.Dia,
-checks:[r.CCC==="SI",r.DIG==="SI",r.PORTA==="SI",r.TP==="SI",r.IN1==="SI",r.IN2==="SI"]
+
+checks:[
+
+r.CCC==="SI",
+r.DIG==="SI",
+r.PORTA==="SI",
+r.TP==="SI",
+r.IN1==="SI",
+r.IN2==="SI"
+
+]
+
 });
 
 existentes.push(cod);
+
 add++;
+
 });
 
 guardarDatos();
-function guardarObjetivos(){
+
 actualizarGrafico();
-}
+
 filtrar();
 
-alert(`✔ ${add} agregados\n⚠ ${dup} duplicados`);
+alert(
+`✔ ${add} agregados\n⚠ ${dup} duplicados`
+);
+
 };
 
 reader.readAsArrayBuffer(file);
+
 }
 
 // ===== GRAFICO =====
 function actualizarGrafico(){
 
-// CONTADORES
-let c={
+let avances={
+
 CCC:0,
 DIG:0,
 PORTA:0,
 TP:0
+
 };
 
 // CONTAR CHECKS
 for(let f of tabla.rows){
 
-if(f.cells[5].querySelector("input").checked) c.CCC++;
-if(f.cells[6].querySelector("input").checked) c.DIG++;
-if(f.cells[7].querySelector("input").checked) c.PORTA++;
-if(f.cells[8].querySelector("input").checked) c.TP++;
+if(f.cells[5].querySelector("input").checked){
+avances.CCC++;
+}
+
+if(f.cells[6].querySelector("input").checked){
+avances.DIG++;
+}
+
+if(f.cells[7].querySelector("input").checked){
+avances.PORTA++;
+}
+
+if(f.cells[8].querySelector("input").checked){
+avances.TP++;
+}
 
 }
 
 // OBJETIVOS
 let objetivos={
+
 CCC:Number(objCCC.value)||0,
 DIG:Number(objDIG.value)||0,
 PORTA:Number(objPORTA.value)||0,
 TP:Number(objTP.value)||0
+
 };
 
 let ctx=grafico.getContext("2d");
 
-// LIMPIAR
-ctx.clearRect(0,0,grafico.width,grafico.height);
+ctx.clearRect(
+0,
+0,
+grafico.width,
+grafico.height
+);
 
-let keys=["CCC","DIG","PORTA","TP"];
+let keys=[
+"CCC",
+"DIG",
+"PORTA",
+"TP"
+];
 
 keys.forEach((k,i)=>{
 
 let obj=objetivos[k];
-let val=c[k];
+let val=avances[k];
 
-// ALTURA MÁXIMA
 let max=Math.max(obj,val,1);
 
-// BARRAS
 let hObj=(obj/max)*140;
 let hVal=(val/max)*140;
 
-// POSICIÓN
 let x=i*90+20;
 
-// OBJETIVO (GRIS)
+// OBJETIVO
 ctx.fillStyle="#ccc";
-ctx.fillRect(x,180-hObj,25,hObj);
 
-// AVANCE (VERDE)
+ctx.fillRect(
+x,
+180-hObj,
+25,
+hObj
+);
+
+// AVANCE
 ctx.fillStyle="#4CAF50";
-ctx.fillRect(x+30,180-hVal,25,hVal);
+
+ctx.fillRect(
+x+30,
+180-hVal,
+25,
+hVal
+);
 
 // TEXTOS
 ctx.fillStyle="black";
 
-ctx.fillText(k,x+5,195);
-
 ctx.fillText(
-`${val}`,
-x+35,
-180-hVal-5
+k,
+x+5,
+200
 );
 
 ctx.fillText(
-`${obj}`,
+obj,
 x,
-180-hObj-5
+175-hObj
+);
+
+ctx.fillText(
+val,
+x+35,
+175-hVal
 );
 
 });
 
 }
 
-// INIT
+// ===== INIT =====
 cargarDatos();
+
+cargarObjetivos();
+
+actualizarGrafico();
 
 </script>
 
