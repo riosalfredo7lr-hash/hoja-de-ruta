@@ -93,10 +93,38 @@ height:260px!important;
 background:white;
 border-radius:10px;
 }
+
+#loginBox{
+padding:20px;
+}
 </style>
 </head>
 
 <body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+
+<div class="box">
+<h2>Ingresar</h2>
+
+<input type="email" id="loginMail" placeholder="Correo">
+
+<input type="password" id="loginPass" placeholder="Contraseña">
+
+<button onclick="registrar()">
+Registrarse
+</button>
+
+<button onclick="login()">
+Ingresar
+</button>
+</div>
+
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
 
 <!-- TABS -->
 <div class="tabs">
@@ -133,6 +161,10 @@ border-radius:10px;
 <button type="submit">Agregar</button>
 
 </form>
+
+<button onclick="logout()">
+Cerrar sesión
+</button>
 
 </div>
 </div>
@@ -172,6 +204,10 @@ Guardar objetivos
 <div class="tab">
 
 <div class="box">
+
+<strong id="contadorClientes">
+Clientes: 0
+</strong>
 
 <select id="filtroDia">
 <option value="todos">Todos</option>
@@ -237,9 +273,73 @@ Exportar
 </div>
 </div>
 
+</div>
+
+<!-- XLSX -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
+
+// ===== FIREBASE =====
+const firebaseConfig = {
+apiKey: "AIzaSyCixATEXS31JGj_t3-p9dHCikD9JeP1xhU",
+authDomain: "hoja-de-ruta1.firebaseapp.com",
+projectId: "hoja-de-ruta1",
+storageBucket: "hoja-de-ruta1.firebasestorage.app",
+messagingSenderId: "591099292473",
+appId: "1:591099292473:web:623d2e0094a92a072dd6e8",
+measurementId: "G-JPRHWVGT0K"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ===== LOGIN =====
+function registrar(){
+
+let mail = loginMail.value;
+let pass = loginPass.value;
+
+auth.createUserWithEmailAndPassword(mail,pass)
+.then(()=>{
+alert("Usuario creado");
+})
+.catch(e=>alert(e.message));
+
+}
+
+function login(){
+
+let mail = loginMail.value;
+let pass = loginPass.value;
+
+auth.signInWithEmailAndPassword(mail,pass)
+.catch(e=>alert(e.message));
+
+}
+
+function logout(){
+auth.signOut();
+}
+
+auth.onAuthStateChanged(user=>{
+
+if(user){
+loginBox.style.display="none";
+app.style.display="block";
+}else{
+loginBox.style.display="block";
+app.style.display="none";
+}
+
+});
 
 // ===== TABS =====
 function cambiarTab(i){
@@ -260,6 +360,18 @@ document.querySelectorAll(".tabs button")[i]
 
 // ===== VARIABLES =====
 const tabla=document.querySelector("#tabla tbody");
+
+// ===== CONTADOR =====
+function actualizarContador(){
+
+let visibles=[...tabla.rows]
+.filter(f=>f.style.display!=="none")
+.length;
+
+document.getElementById("contadorClientes")
+.textContent="Clientes: "+visibles;
+
+}
 
 // ===== GUARDAR CLIENTES =====
 function guardarDatos(){
@@ -309,16 +421,14 @@ datos.forEach(cli=>crearFila(cli));
 
 }
 
-// ===== GUARDAR OBJETIVOS =====
+// ===== OBJETIVOS =====
 function guardarObjetivos(){
 
 let obj={
-
 CCC:objCCC.value,
 DIG:objDIG.value,
 PORTA:objPORTA.value,
 TP:objTP.value
-
 };
 
 localStorage.setItem(
@@ -330,7 +440,6 @@ actualizarGrafico();
 
 }
 
-// ===== CARGAR OBJETIVOS =====
 function cargarObjetivos(){
 
 let obj=JSON.parse(
@@ -355,7 +464,6 @@ f.insertCell(2).textContent=cli.razon;
 f.insertCell(3).textContent=cli.telefono;
 f.insertCell(4).textContent=cli.dia;
 
-// CHECKS
 (cli.checks || [false,false,false,false,false,false])
 .forEach(ch=>{
 
@@ -375,9 +483,8 @@ f.insertCell(-1).appendChild(c);
 
 });
 
-// ===== EDITAR =====
+// EDITAR
 let btnE=document.createElement("button");
-
 btnE.textContent="✏️";
 
 btnE.onclick=()=>{
@@ -388,8 +495,7 @@ for(let i=0;i<5;i++){
 
 let v=f.cells[i].textContent;
 
-f.cells[i].innerHTML=
-`<input value="${v}">`;
+f.cells[i].innerHTML=`<input value="${v}">`;
 
 }
 
@@ -417,9 +523,8 @@ filtrar();
 
 f.insertCell(-1).appendChild(btnE);
 
-// ===== WHATSAPP =====
+// WHATSAPP
 let btnW=document.createElement("button");
-
 btnW.textContent="📲";
 
 btnW.onclick=()=>{
@@ -460,23 +565,13 @@ razon:razon.value,
 telefono:telefono.value,
 dia:dia.value,
 
-checks:[
-false,
-false,
-false,
-false,
-false,
-false
-]
+checks:[false,false,false,false,false,false]
 
 });
 
 guardarDatos();
-
 actualizarGrafico();
-
 filtrar();
-
 form.reset();
 
 };
@@ -488,7 +583,6 @@ filtroDia.onchange=filtrar;
 function filtrar(){
 
 let texto=buscar.value.toLowerCase();
-
 let dia=filtroDia.value;
 
 for(let f of tabla.rows){
@@ -513,6 +607,8 @@ f.style.display=
 : "none";
 
 }
+
+actualizarContador();
 
 }
 
@@ -646,9 +742,7 @@ add++;
 });
 
 guardarDatos();
-
 actualizarGrafico();
-
 filtrar();
 
 alert(
@@ -665,15 +759,12 @@ reader.readAsArrayBuffer(file);
 function actualizarGrafico(){
 
 let avances={
-
 CCC:0,
 DIG:0,
 PORTA:0,
 TP:0
-
 };
 
-// CONTAR CHECKS
 for(let f of tabla.rows){
 
 if(f.cells[5].querySelector("input").checked){
@@ -694,31 +785,18 @@ avances.TP++;
 
 }
 
-// OBJETIVOS
 let objetivos={
-
 CCC:Number(objCCC.value)||0,
 DIG:Number(objDIG.value)||0,
 PORTA:Number(objPORTA.value)||0,
 TP:Number(objTP.value)||0
-
 };
 
 let ctx=grafico.getContext("2d");
 
-ctx.clearRect(
-0,
-0,
-grafico.width,
-grafico.height
-);
+ctx.clearRect(0,0,grafico.width,grafico.height);
 
-let keys=[
-"CCC",
-"DIG",
-"PORTA",
-"TP"
-];
+let keys=["CCC","DIG","PORTA","TP"];
 
 keys.forEach((k,i)=>{
 
@@ -732,46 +810,17 @@ let hVal=(val/max)*140;
 
 let x=i*90+20;
 
-// OBJETIVO
 ctx.fillStyle="#ccc";
+ctx.fillRect(x,180-hObj,25,hObj);
 
-ctx.fillRect(
-x,
-180-hObj,
-25,
-hObj
-);
-
-// AVANCE
 ctx.fillStyle="#4CAF50";
+ctx.fillRect(x+30,180-hVal,25,hVal);
 
-ctx.fillRect(
-x+30,
-180-hVal,
-25,
-hVal
-);
-
-// TEXTOS
 ctx.fillStyle="black";
 
-ctx.fillText(
-k,
-x+5,
-200
-);
-
-ctx.fillText(
-obj,
-x,
-175-hObj
-);
-
-ctx.fillText(
-val,
-x+35,
-175-hVal
-);
+ctx.fillText(k,x+5,200);
+ctx.fillText(obj,x,175-hObj);
+ctx.fillText(val,x+35,175-hVal);
 
 });
 
@@ -779,13 +828,11 @@ x+35,
 
 // ===== INIT =====
 cargarDatos();
-
 cargarObjetivos();
-
 actualizarGrafico();
+actualizarContador();
 
 </script>
-
 
 </body>
 </html>
